@@ -1,0 +1,1 @@
+TAX_20_VALUE = 1.2  # 20% of revenue

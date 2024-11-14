@@ -19,9 +19,24 @@ class GenreSerializer(serializers.ModelSerializer):
 
 class BookSerializer(serializers.ModelSerializer):
     """Class-model for book serializers"""
+    genre = GenreSerializer(many=True, source='genre_set')
     class Meta:
         model = Book
         fields = '__all__'
+
+    def create(self, validated_data):
+        genres = validated_data.pop('genre', None)
+        book = Book.objects.create(**validated_data)
+        for genre in genres:
+            Genre.objects.create(book=book, **genre)
+        return book
+
+    def update(self, instance, validated_data):
+        genres = validated_data.pop('genre', None)
+        book = Book.objects.get(pk=instance.id)
+        for genre in genres:
+            Genre.objects.create(book=book, **genre)
+        return book
 
 class RentSerializer(serializers.ModelSerializer):
     """Class-model for rent serializers"""

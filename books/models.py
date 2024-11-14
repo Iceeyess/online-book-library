@@ -25,7 +25,7 @@ class Author(models.Model):
 class Genre(models.Model):
     """The class-model of the Genre"""
     name = models.CharField(max_length=100, help_text='Genre name', unique=True)
-    book = models.ManyToManyField('Book', help_text='Book model', related_name='books')
+    book = models.ManyToManyField('Book', help_text='Book model', related_name='books_list')
 
     def __repr__(self):
         return self.name
@@ -41,7 +41,7 @@ class Book(models.Model):
     description = models.TextField(help_text='Book description')
     publication_book_year = models.PositiveIntegerField(help_text='Publication book year')
     author = models.ForeignKey(Author, on_delete=models.CASCADE, help_text='Author')
-    genre = models.ManyToManyField(Genre, help_text='Genre', related_name='genres')
+    genre = models.ManyToManyField(Genre, help_text='Genre', related_name='genre_list')
     image = models.ImageField(upload_to='photo/books/', help_text='Photo', **NULLABLE)
     num_pages = models.IntegerField(help_text='Number of pages', **NULLABLE)
 

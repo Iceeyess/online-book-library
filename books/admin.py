@@ -19,9 +19,9 @@ class GenreAdmin(admin.ModelAdmin):
 
 @admin.register(Book)
 class BookAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'author', 'publication_book_year',)
-    list_filter = ('id', 'title', 'author', 'publication_book_year',)
-    search_fields = ('id', 'title', 'author', 'publication_book_year', 'genre', )
+    list_display = ('id', 'title', 'publication_book_year',)
+    list_filter = ('id', 'title', 'publication_book_year',)
+    search_fields = ('id', 'title', 'publication_book_year', 'genre', )
 
 
 @admin.register(Rent)

@@ -19,7 +19,7 @@ class GenreSerializer(serializers.ModelSerializer):
 
 class BookSerializer(serializers.ModelSerializer):
     """Class-model for book serializers"""
-    genre = GenreSerializer(many=True, source='genre_set')
+    genre = GenreSerializer(many=True)
     class Meta:
         model = Book
         fields = '__all__'

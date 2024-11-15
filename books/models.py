@@ -16,6 +16,9 @@ class Author(models.Model):
     def __repr__(self):
         return self.full_name
 
+    def __str__(self):
+        return self.full_name
+
 
     class Meta:
         verbose_name = 'Author'
@@ -27,6 +30,9 @@ class Genre(models.Model):
     name = models.CharField(max_length=100, help_text='Genre name', unique=True)
 
     def __repr__(self):
+        return self.name
+
+    def __str__(self):
         return self.name
 
     class Meta:

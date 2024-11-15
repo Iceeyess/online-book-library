@@ -19,9 +19,12 @@ class GenreSerializer(serializers.ModelSerializer):
 
 class BookSerializer(serializers.ModelSerializer):
     """Class-model for book serializers"""
+    genre = serializers.StringRelatedField(many=True)  # for string related fields in response of JSON serialization
+    author = serializers.StringRelatedField(many=True)  # same
     class Meta:
         model = Book
         fields = '__all__'
+
 
 class RentSerializer(serializers.ModelSerializer):
     """Class-model for rent serializers"""

@@ -16,6 +16,9 @@ class Author(models.Model):
     def __repr__(self):
         return self.full_name
 
+    def __str__(self):
+        return self.full_name
+
 
     class Meta:
         verbose_name = 'Author'
@@ -29,6 +32,9 @@ class Genre(models.Model):
     def __repr__(self):
         return self.name
 
+    def __str__(self):
+        return self.name
+
     class Meta:
         verbose_name = 'Genre'
         verbose_name_plural = 'Genres'
@@ -39,8 +45,8 @@ class Book(models.Model):
     title = models.CharField(max_length=255, help_text='Book title')
     description = models.TextField(help_text='Book description')
     publication_book_year = models.PositiveIntegerField(help_text='Publication book year')
-    author = models.ForeignKey(Author, on_delete=models.CASCADE, help_text='Author')
-    genre = models.ManyToManyField(Genre, help_text='Genre')
+    author = models.ManyToManyField(Author, help_text='Author', related_name='authors_list')
+    genre = models.ManyToManyField(Genre, help_text='Genre', related_name='genres_list')
     image = models.ImageField(upload_to='photo/books/', help_text='Photo', **NULLABLE)
     num_pages = models.IntegerField(help_text='Number of pages', **NULLABLE)
 

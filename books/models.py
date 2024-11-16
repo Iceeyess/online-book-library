@@ -54,6 +54,9 @@ class Book(models.Model):
     def __repr__(self):
         return f'Book - {self.title}, author - {self.author}'
 
+    def __str__(self):
+        return f'Book - {self.title}, author - {self.author}'
+
     class Meta:
         verbose_name = 'Book'
         verbose_name_plural = 'Books'
@@ -62,17 +65,20 @@ class Book(models.Model):
 
 class Rent(models.Model):
     """The class-model of the balance which consists from the status rent books"""
-    book = models.ForeignKey(Book, on_delete=models.DO_NOTHING, help_text='rent book')
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, help_text='debtor user')
-    transaction_date_created = models.DateField(auto_now_add=True, help_text='Date of transaction')
-    transaction_date_update = models.DateField(auto_now=True, help_text='Date of last update transaction')
+    book = models.ManyToManyField(Book, help_text='rent book', related_name='books_list')
+    transaction_date_created = models.DateTimeField(auto_now_add=True, help_text='Date of transaction')
+    transaction_date_update = models.DateTimeField(auto_now=True, help_text='Date of last update transaction')
     is_book_returned = models.BooleanField(default=False, help_text='Shows if book was returned to library')
     term = models.PositiveIntegerField(help_text='Field depends on how long book was took rent in days')
-    deadline = models.DateField(help_text='The deadline date of rent book, red flag!')
     retail_amount = models.FloatField(help_text='Total amount, excluded tax')
-    tax_amount = models.FloatField(help_text='Total tax amount for revenue')
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, help_text='debtor user', **NULLABLE)
+    deadline = models.DateTimeField(help_text='The deadline date of rent book, red flag!', **NULLABLE)
+    tax_amount = models.FloatField(help_text='Total tax amount for revenue', **NULLABLE)
 
     def __repr__(self):
+        return f'Rent user - {self.user}, Term - {self.term} days'
+
+    def __str__(self):
         return f'Rent user - {self.user}, Term - {self.term} days'
 
     class Meta:

@@ -30,13 +30,3 @@ class RentViewSet(viewsets.ModelViewSet):
     queryset = Rent.objects.all()
     serializer_class = RentSerializer
     permission_classes = [AllowAny, ]
-
-    # def create(self, request, *args, **kwargs):
-    #     """Creates a new rent record"""
-    #     # Add user to rent record
-    #     request['user'] = self.context['request'].user  # get user from request context
-    #     # ['deadline'] = self.data['transaction_date_created'] + timedelta(days=self.data['term'])
-    #     # validated_data['tax_amount'] = self.data['retail_amount'] * TAX_20_VALUE
-    #     return super().create(request, *args, **kwargs)
-    # def perform_create(self, serializer):
-    #     pass

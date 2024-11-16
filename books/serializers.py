@@ -1,7 +1,9 @@
+from django.utils.timezone import now
 from rest_framework import serializers
+from rest_framework.fields import HiddenField
 
 from books.models import Author, Genre, Book, Rent
-from datetime import timedelta, datetime
+from datetime import timedelta
 from .services import TAX_20_VALUE
 from .validators import IsAmountNegative
 
@@ -28,23 +30,24 @@ class BookSerializer(serializers.ModelSerializer):
 
 
 class RentSerializer(serializers.ModelSerializer):
-    retail_amount = serializers.FloatField(required=True, validators=[IsAmountNegative()])
     """Class-model for rent serializers"""
-    # book = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-    # deadline = serializers.SerializerMethodField()
-    # tax_amount = serializers.SerializerMethodField()
+    retail_amount = serializers.FloatField(required=True, validators=[IsAmountNegative()])
+    books = serializers.PrimaryKeyRelatedField(many=True, queryset=Book.objects.all())
+    books_ = serializers.StringRelatedField(source='books', many=True, read_only=True)
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())  # hide user field API
+    is_book_returned = serializers.HiddenField(default=False)
+    deadline = serializers.DateTimeField(required=False)
+    tax_amount = serializers.FloatField(required=False)
 
-    # def get_deadline(self, obj):
-    #     """Calculates a deadline date for rent book"""
-    #     return obj.transaction_date_created + timedelta(days=obj.term)
-    #
-    # def get_tax_amount(self, obj):
-    #     """Calculates a tax amount for rent book"""
-    #     return obj.retail_amount * TAX_20_VALUE
+    def to_representation(self, instance):
+        """In order to hide 'books' field from response of server"""
+        if self.fields.get('books'):
+            self.fields.pop('books', None)
+        return super().to_representation(instance)
 
     def create(self, validated_data):
         validated_data['user'] = self.context['request'].user
-        validated_data['deadline'] = datetime.now() + timedelta(days=validated_data['term'])
+        validated_data['deadline'] = now() + timedelta(days=validated_data['term'])
         validated_data['tax_amount'] = round(validated_data['retail_amount'] * TAX_20_VALUE, 2)  # add tax amount to validated data
         return super().create(validated_data)
 
@@ -52,4 +55,3 @@ class RentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rent
         fields = '__all__'
-

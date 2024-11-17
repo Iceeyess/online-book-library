@@ -1,10 +1,13 @@
 from django.shortcuts import render
-from rest_framework import viewsets
-from rest_framework.permissions import IsAdminUser
+from django.utils.timezone import now
+from rest_framework import viewsets, generics
+from rest_framework.permissions import IsAdminUser, AllowAny
 from rest_framework.response import Response
+import datetime
 
 from books.models import Author, Genre, Book, Rent
 from books.serializers import AuthorSerializer, GenreSerializer, BookSerializer, RentSerializer
+from books.services import return_book_back
 from users.permissions import IsSuperuser
 
 
@@ -15,11 +18,13 @@ class AuthorViewSet(viewsets.ModelViewSet):
     serializer_class = AuthorSerializer
     permission_classes = [IsSuperuser | IsAdminUser]
 
+
 class GenreViewSet(viewsets.ModelViewSet):
     """Class for manage genre CRUD"""
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = [IsSuperuser | IsAdminUser]
+
 
 class BookViewSet(viewsets.ModelViewSet):
     """Class for book CRUD"""
@@ -27,20 +32,31 @@ class BookViewSet(viewsets.ModelViewSet):
     serializer_class = BookSerializer
     permission_classes = [IsSuperuser | IsAdminUser]
 
-    def get(self, request):
-        return Response({'posts': BookSerializer(BookViewSet.queryset, many=True )})
-
-    # def get(self, request, *args, **kwargs):
-    #     print(123123123, kwargs)
-    #     if 'genre_id' in kwargs:
-    #         genre = Genre.objects.get(pk=kwargs['genre_id'])
-    #         books = Book.objects.filter(genre=genre)
-    #         serializer = BookSerializer(books, many=True)
-    #         return Response(serializer.data)
-    #     return super().get(request, *args, **kwargs)
 
 class RentViewSet(viewsets.ModelViewSet):
     """Class for rent CRUD"""
     queryset = Rent.objects.all()
     serializer_class = RentSerializer
-    # permission_classes = [TBD]
+    permission_classes = [AllowAny, ]
+
+    def retrieve(self, request, *args, **kwargs):
+        """Method to get status Rent object in response server"""
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        response = {
+            'id': serializer.data.get('id'),
+            'books_': serializer.data.get('books_'),
+            'deadline': serializer.data.get('deadline'),
+            'status': 'Срок просрочен' if datetime.datetime.strptime(serializer.data.get('deadline'),
+                                                                '%Y-%m-%dT%H:%M:%S.%f%z') < now() else 'В аренде',
+        }
+        return Response(response)
+
+class ReturnBackBookUpdateAPIView(generics.UpdateAPIView):
+    queryset = Rent
+    serializer_class = RentSerializer
+    def update(self, request, *args, **kwargs):
+        """This API checks if Rent object attribute 'are_books_returned' is False, then it switches on True value"""
+        instance = self.get_object()
+        return_book_back(instance)
+        return super().update(request, *args, **kwargs)

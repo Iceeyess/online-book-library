@@ -1,8 +1,10 @@
+from django.utils.timezone import now
 from rest_framework import serializers
 
 from books.models import Author, Genre, Book, Rent
 from datetime import timedelta
 from .services import TAX_20_VALUE
+from .validators import IsAmountNegative
 
 
 class AuthorSerializer(serializers.ModelSerializer):
@@ -19,8 +21,20 @@ class GenreSerializer(serializers.ModelSerializer):
 
 class BookSerializer(serializers.ModelSerializer):
     """Class-model for book serializers"""
-    genre = serializers.StringRelatedField(many=True)  # for string related fields in response of JSON serialization
-    author = serializers.StringRelatedField(many=True)  # same
+    # for string related fields in response of JSON serialization
+    genre = serializers.PrimaryKeyRelatedField(many=True, queryset=Genre.objects.all())
+    genre_ = serializers.StringRelatedField(source='genre', many=True, read_only=True)
+    author = serializers.PrimaryKeyRelatedField(many=True, queryset=Author.objects.all())
+    author_ = serializers.StringRelatedField(source='author', many=True, read_only=True)
+
+    def to_representation(self, instance):
+        """In order to hide 'books' field from response of server"""
+        if self.fields.get('genre'):
+            self.fields.pop('genre')
+        if self.fields.get('author'):
+            self.fields.pop('author')
+        return super().to_representation(instance)
+
     class Meta:
         model = Book
         fields = '__all__'
@@ -28,19 +42,30 @@ class BookSerializer(serializers.ModelSerializer):
 
 class RentSerializer(serializers.ModelSerializer):
     """Class-model for rent serializers"""
-    deadline = serializers.SerializerMethodField()
-    tax_amount = serializers.SerializerMethodField()
+    retail_amount = serializers.FloatField(required=True, validators=[IsAmountNegative()])
+    books = serializers.PrimaryKeyRelatedField(many=True, queryset=Book.objects.all())
+    books_ = serializers.StringRelatedField(source='books', many=True, read_only=True)
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())  # hide user field API
+    are_books_returned = serializers.HiddenField(default=False)
+    deadline = serializers.DateTimeField(required=False)
+    tax_amount = serializers.FloatField(required=False)
+
+    def to_representation(self, instance):
+        """In order to hide 'books' field from response of server"""
+        if self.fields.get('books'):
+            self.fields.pop('books')
+        return super().to_representation(instance)
+
+    def create(self, validated_data):
+        validated_data['user'] = self.context['request'].user
+        validated_data['deadline'] = now() + timedelta(days=validated_data['term'])
+        validated_data['tax_amount'] = round(validated_data['retail_amount'] * TAX_20_VALUE, 2)
+        for book in validated_data.get('books'):
+            book.is_available = False
+            book.save()
+        return super().create(validated_data)
+
 
     class Meta:
         model = Rent
         fields = '__all__'
-
-    def get_deadline(self, obj):
-        """Calculates a deadline date for rent book"""
-        return obj.transaction_date_created + timedelta(days=obj.term)
-
-    def get_tax_amount(self, obj):
-        """Calculates a tax amount for rent book"""
-        return obj.retail_amount * TAX_20_VALUE
-
-

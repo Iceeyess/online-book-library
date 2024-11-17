@@ -26,6 +26,6 @@ class BookAdmin(admin.ModelAdmin):
 
 @admin.register(Rent)
 class RentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'book__title', 'user__username', )
-    list_filter = ('id', 'is_book_returned', 'transaction_date_created', 'term', 'deadline', )
+    list_display = ('id', 'books__title', 'user__username', )
+    list_filter = ('id', 'are_books_returned', 'published', 'term', 'deadline', )
     search_fields = ('id', 'title', 'author', 'publication_book_year', 'genre', 'term', 'deadline', )

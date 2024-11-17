@@ -38,7 +38,7 @@ class Genre(models.Model):
     class Meta:
         verbose_name = 'Genre'
         verbose_name_plural = 'Genres'
-        ordering = ('name', )
+        ordering = ('pk', )
 
 class Book(models.Model):
     """The class-model of the Book"""
@@ -49,10 +49,18 @@ class Book(models.Model):
     genre = models.ManyToManyField(Genre, help_text='Genre', related_name='genres_list')
     image = models.ImageField(upload_to='photo/books/', help_text='Photo', **NULLABLE)
     num_pages = models.IntegerField(help_text='Number of pages', **NULLABLE)
-
+    is_available = models.BooleanField(default=True, help_text='Shows if book is available for rent')
 
     def __repr__(self):
         return f'Book - {self.title}, author - {self.author}'
+
+    def __str__(self):
+        """From many-to-many queryset object conversion to string a readable view"""
+        author_list = list()
+        for author_name in self.author.all():
+            author_list.append(str(author_name))
+        author_str = ', '.join(author_list)
+        return f'Book - {self.title}, author - {author_str}'
 
     class Meta:
         verbose_name = 'Book'
@@ -62,17 +70,20 @@ class Book(models.Model):
 
 class Rent(models.Model):
     """The class-model of the balance which consists from the status rent books"""
-    book = models.ForeignKey(Book, on_delete=models.DO_NOTHING, help_text='rent book')
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, help_text='debtor user')
-    transaction_date_created = models.DateField(auto_now_add=True, help_text='Date of transaction')
-    transaction_date_update = models.DateField(auto_now=True, help_text='Date of last update transaction')
-    is_book_returned = models.BooleanField(default=False, help_text='Shows if book was returned to library')
+    books = models.ManyToManyField(Book, help_text='rent book', related_name='books_list')
+    published = models.DateTimeField(auto_now_add=True, help_text='Date of transaction')
+    record_updated = models.DateTimeField(auto_now=True, help_text='Date of last update transaction')
+    are_books_returned = models.BooleanField(default=False, help_text='Shows if book was returned to library')
     term = models.PositiveIntegerField(help_text='Field depends on how long book was took rent in days')
-    deadline = models.DateField(help_text='The deadline date of rent book, red flag!')
     retail_amount = models.FloatField(help_text='Total amount, excluded tax')
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, help_text='debtor user')
+    deadline = models.DateTimeField(help_text='The deadline date of rent book, red flag!')
     tax_amount = models.FloatField(help_text='Total tax amount for revenue')
 
     def __repr__(self):
+        return f'Rent user - {self.user}, Term - {self.term} days'
+
+    def __str__(self):
         return f'Rent user - {self.user}, Term - {self.term} days'
 
     class Meta:

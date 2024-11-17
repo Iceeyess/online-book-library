@@ -54,7 +54,7 @@ class Book(models.Model):
         return f'Book - {self.title}, author - {self.author}'
 
     def __str__(self):
-        """from many-to-many object conversion to string a readable view"""
+        """From many-to-many queryset object conversion to string a readable view"""
         author_list = list()
         for author_name in self.author.all():
             author_list.append(str(author_name))

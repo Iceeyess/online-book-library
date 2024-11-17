@@ -1,6 +1,5 @@
 from django.utils.timezone import now
 from rest_framework import serializers
-from rest_framework.fields import HiddenField
 
 from books.models import Author, Genre, Book, Rent
 from datetime import timedelta
@@ -42,7 +41,7 @@ class RentSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         """In order to hide 'books' field from response of server"""
         if self.fields.get('books'):
-            self.fields.pop('books', None)
+            self.fields.pop('books')
         return super().to_representation(instance)
 
     def create(self, validated_data):

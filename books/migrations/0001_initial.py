@@ -66,7 +66,7 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('transaction_date_created', models.DateField(auto_now_add=True, help_text='Date of transaction')),
                 ('transaction_date_update', models.DateField(auto_now=True, help_text='Date of last update transaction')),
-                ('is_book_returned', models.BooleanField(default=False, help_text='Shows if book was returned to library')),
+                ('are_books_returned', models.BooleanField(default=False, help_text='Shows if book was returned to library')),
                 ('term', models.PositiveIntegerField(help_text='Field depends on how long book was took rent in days')),
                 ('deadline', models.DateField(help_text='The deadline date of rent book, red flag!')),
                 ('retail_amount', models.FloatField(help_text='Total amount, excluded tax')),

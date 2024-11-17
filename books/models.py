@@ -38,7 +38,7 @@ class Genre(models.Model):
     class Meta:
         verbose_name = 'Genre'
         verbose_name_plural = 'Genres'
-        ordering = ('name', )
+        ordering = ('pk', )
 
 class Book(models.Model):
     """The class-model of the Book"""
@@ -49,6 +49,7 @@ class Book(models.Model):
     genre = models.ManyToManyField(Genre, help_text='Genre', related_name='genres_list')
     image = models.ImageField(upload_to='photo/books/', help_text='Photo', **NULLABLE)
     num_pages = models.IntegerField(help_text='Number of pages', **NULLABLE)
+    is_available = models.BooleanField(default=True, help_text='Shows if book is available for rent')
 
     def __repr__(self):
         return f'Book - {self.title}, author - {self.author}'
@@ -72,7 +73,7 @@ class Rent(models.Model):
     books = models.ManyToManyField(Book, help_text='rent book', related_name='books_list')
     published = models.DateTimeField(auto_now_add=True, help_text='Date of transaction')
     record_updated = models.DateTimeField(auto_now=True, help_text='Date of last update transaction')
-    is_book_returned = models.BooleanField(default=False, help_text='Shows if book was returned to library')
+    are_books_returned = models.BooleanField(default=False, help_text='Shows if book was returned to library')
     term = models.PositiveIntegerField(help_text='Field depends on how long book was took rent in days')
     retail_amount = models.FloatField(help_text='Total amount, excluded tax')
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, help_text='debtor user')

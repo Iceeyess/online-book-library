@@ -11,5 +11,5 @@ router.register(r'authors', views.AuthorViewSet, basename='authors')
 router.register(r'genres', views.GenreViewSet, basename='genres')
 router.register(r'rent', views.RentViewSet, basename='rent')
 urlpatterns = [
-    path('books/return/<int:pk>/', views.ReturnBackBookUpdateAPIView.as_view(), name='return-book')
+    path('rent/return/<int:pk>/', views.ReturnBackBookUpdateAPIView.as_view(), name='return-book')
 ] + router.urls

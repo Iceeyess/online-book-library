@@ -69,3 +69,10 @@ class RentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rent
         fields = '__all__'
+
+class RentReturnBackSerializer(serializers.ModelSerializer):
+    books = serializers.StringRelatedField(read_only=True, many=True)
+
+    class Meta:
+        model = Rent
+        fields = ['id', 'books', 'are_books_returned']

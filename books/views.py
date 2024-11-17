@@ -6,7 +6,8 @@ from rest_framework.response import Response
 import datetime
 
 from books.models import Author, Genre, Book, Rent
-from books.serializers import AuthorSerializer, GenreSerializer, BookSerializer, RentSerializer
+from books.serializers import (AuthorSerializer, GenreSerializer, BookSerializer, RentSerializer,
+                               RentReturnBackSerializer)
 from books.services import return_book_back
 from users.permissions import IsSuperuser
 
@@ -48,13 +49,16 @@ class RentViewSet(viewsets.ModelViewSet):
             'books_': serializer.data.get('books_'),
             'deadline': serializer.data.get('deadline'),
             'status': 'Срок просрочен' if datetime.datetime.strptime(serializer.data.get('deadline'),
-                                                                '%Y-%m-%dT%H:%M:%S.%f%z') < now() else 'В аренде',
+                                                                     '%Y-%m-%dT%H:%M:%S.%f%z') < now() else (
+                'Аренда закрыта' if instance.are_books_returned else 'В аренде'),
         }
         return Response(response)
 
+
 class ReturnBackBookUpdateAPIView(generics.UpdateAPIView):
     queryset = Rent
-    serializer_class = RentSerializer
+    serializer_class = RentReturnBackSerializer
+
     def update(self, request, *args, **kwargs):
         """This API checks if Rent object attribute 'are_books_returned' is False, then it switches on True value"""
         instance = self.get_object()

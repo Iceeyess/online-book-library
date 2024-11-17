@@ -46,7 +46,7 @@ class RentSerializer(serializers.ModelSerializer):
     books = serializers.PrimaryKeyRelatedField(many=True, queryset=Book.objects.all())
     books_ = serializers.StringRelatedField(source='books', many=True, read_only=True)
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())  # hide user field API
-    is_book_returned = serializers.HiddenField(default=False)
+    are_books_returned = serializers.HiddenField(default=False)
     deadline = serializers.DateTimeField(required=False)
     tax_amount = serializers.FloatField(required=False)
 

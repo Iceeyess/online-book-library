@@ -1,10 +1,11 @@
 from django.utils.timezone import now
 from rest_framework import serializers
+from rest_framework.response import Response
 
 from books.models import Author, Genre, Book, Rent
 from datetime import timedelta
 from .services import TAX_20_VALUE
-from .validators import IsAmountNegative
+from .validators import IsAmountNegative, CanNotEdit
 
 
 class AuthorSerializer(serializers.ModelSerializer):
@@ -45,10 +46,11 @@ class RentSerializer(serializers.ModelSerializer):
     retail_amount = serializers.FloatField(required=True, validators=[IsAmountNegative()])
     books = serializers.PrimaryKeyRelatedField(many=True, queryset=Book.objects.all())
     books_ = serializers.StringRelatedField(source='books', many=True, read_only=True)
-    user = serializers.HiddenField(default=serializers.CurrentUserDefault())  # hide user field API
-    are_books_returned = serializers.HiddenField(default=False)
-    deadline = serializers.DateTimeField(required=False)
-    tax_amount = serializers.FloatField(required=False)
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault(), )  # hide user field API
+    deadline = serializers.DateTimeField(required=False, validators=[CanNotEdit()])
+    tax_amount = serializers.FloatField(required=False, validators=[CanNotEdit()])
+    published = serializers.DateTimeField(validators=[CanNotEdit()])
+    record_updated = serializers.DateTimeField(read_only=True, validators=[CanNotEdit()])
 
     def to_representation(self, instance):
         """In order to hide 'books' field from response of server"""
@@ -65,6 +67,18 @@ class RentSerializer(serializers.ModelSerializer):
             book.save()
         return super().create(validated_data)
 
+    def update(self, instance, validated_data):
+        """Method updates values in validated data, as well as for related_fields which depend on the value of
+        another fields and automatically formulas"""
+        related_fields = {'term': 'deadline', 'retail_amount': 'tax_amount'}
+        formula_for_related_fields = {'deadline': instance.published + timedelta(days=validated_data.get('term')),
+                                      'tax_amount': round(validated_data.get('retail_amount') * TAX_20_VALUE, 2)}
+        for data_ in validated_data:
+            if data_ in related_fields:
+                setattr(instance, related_fields.get(data_), formula_for_related_fields.get(related_fields[data_]))
+            instance.data_ = validated_data.get(data_)
+        instance.save()
+        return super().update(instance, validated_data)
 
     class Meta:
         model = Rent

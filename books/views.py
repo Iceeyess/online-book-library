@@ -1,3 +1,4 @@
+from django.core.serializers import serialize
 from django.shortcuts import render
 from django.utils.timezone import now
 from rest_framework import viewsets, generics
@@ -53,7 +54,6 @@ class RentViewSet(viewsets.ModelViewSet):
                 'Аренда закрыта' if instance.are_books_returned else 'В аренде'),
         }
         return Response(response)
-
 
 class ReturnBackBookUpdateAPIView(generics.UpdateAPIView):
     queryset = Rent

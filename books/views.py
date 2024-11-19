@@ -2,10 +2,11 @@ from django.core.serializers import serialize
 from django.shortcuts import render
 from django.utils.timezone import now
 from rest_framework import viewsets, generics
+from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import IsAdminUser, AllowAny
 from rest_framework.response import Response
 import datetime
-
+from django_filters import rest_framework as filters
 from books.models import Author, Genre, Book, Rent
 from books.serializers import (AuthorSerializer, GenreSerializer, BookSerializer, RentSerializer,
                                RentReturnBackSerializer)
@@ -33,6 +34,13 @@ class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = [IsSuperuser | IsAdminUser]
+
+class BookListListAPIView(generics.ListAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    filter_backends = (filters.DjangoFilterBackend, OrderingFilter)
+    filterset_fields = ['title', 'publication_book_year', 'author', 'genre', ]
+    ordering_fields = ('title', )
 
 
 class RentViewSet(viewsets.ModelViewSet):

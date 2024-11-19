@@ -1,6 +1,5 @@
 from django.utils.timezone import now
 from rest_framework import serializers
-from rest_framework.response import Response
 
 from books.models import Author, Genre, Book, Rent
 from datetime import timedelta

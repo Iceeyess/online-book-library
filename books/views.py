@@ -6,7 +6,8 @@ from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import IsAdminUser, AllowAny
 from rest_framework.response import Response
 import datetime
-from django_filters import rest_framework as filters
+from rest_framework.filters import SearchFilter, OrderingFilter
+# from django_filters import rest_framework as filters
 from books.models import Author, Genre, Book, Rent
 from books.serializers import (AuthorSerializer, GenreSerializer, BookSerializer, RentSerializer,
                                RentReturnBackSerializer)
@@ -38,8 +39,9 @@ class BookViewSet(viewsets.ModelViewSet):
 class BookListListAPIView(generics.ListAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    filter_backends = (filters.DjangoFilterBackend, OrderingFilter)
-    filterset_fields = ['title', 'publication_book_year', 'author', 'genre', ]
+    filter_backends = (SearchFilter, OrderingFilter)
+    # filterset_fields = ['title', 'publication_book_year', 'author', 'genre__name', 'author__full_name']
+    search_fields = ['title', 'publication_book_year', 'author', 'genre__name', 'author__full_name']
     ordering_fields = ('title', )
 
 

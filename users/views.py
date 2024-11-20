@@ -17,7 +17,7 @@ class UsersViewSet(viewsets.ModelViewSet):
 
 
     def get_permissions(self):
-        """Depends which action method return permission classes"""
+        """Depends which action method returns list of permission classes"""
         if self.action == 'create':
             permission_classes = [AllowAny, ]
         elif self.action in ('retrieve', 'update', 'destroy', 'partial_update'):

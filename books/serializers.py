@@ -1,6 +1,5 @@
 from django.utils.timezone import now
 from rest_framework import serializers
-
 from books.models import Author, Genre, Book, Rent
 from datetime import timedelta
 from .services import TAX_20_VALUE
@@ -39,16 +38,16 @@ class BookSerializer(serializers.ModelSerializer):
         model = Book
         fields = '__all__'
 
-
 class RentSerializer(serializers.ModelSerializer):
     """Class-model for rent serializers"""
     retail_amount = serializers.FloatField(required=True, validators=[IsAmountNegative()])
+    term = serializers.IntegerField(required=True, validators=[IsAmountNegative()])
     books = serializers.PrimaryKeyRelatedField(many=True, queryset=Book.objects.all())
     books_ = serializers.StringRelatedField(source='books', many=True, read_only=True)
     user = serializers.HiddenField(default=serializers.CurrentUserDefault(), )  # hide user field API
     deadline = serializers.DateTimeField(required=False, validators=[CanNotEdit()])
     tax_amount = serializers.FloatField(required=False, validators=[CanNotEdit()])
-    published = serializers.DateTimeField(validators=[CanNotEdit()])
+    published = serializers.DateTimeField(required=False, validators=[CanNotEdit()])
     record_updated = serializers.DateTimeField(read_only=True, validators=[CanNotEdit()])
 
     def to_representation(self, instance):
@@ -58,12 +57,19 @@ class RentSerializer(serializers.ModelSerializer):
         return super().to_representation(instance)
 
     def create(self, validated_data):
+        """Overrides create method to save related fields for automatically calculations.
+        Below realized a validation error as well for available fields"""
         validated_data['user'] = self.context['request'].user
         validated_data['deadline'] = now() + timedelta(days=validated_data['term'])
         validated_data['tax_amount'] = round(validated_data['retail_amount'] * TAX_20_VALUE, 2)
+        #  Checks if book is available it books as sales, unless Validation error appears.
         for book in validated_data.get('books'):
-            book.is_available = False
-            book.save()
+            if book.is_available:
+                book.is_available = False
+                book.save()
+            else:
+                raise serializers.ValidationError(f'This {book} is already rented, please choice another one.')
+
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
@@ -84,6 +90,7 @@ class RentSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class RentReturnBackSerializer(serializers.ModelSerializer):
+    """Serializer for return back books"""
     books = serializers.StringRelatedField(read_only=True, many=True)
 
     class Meta:

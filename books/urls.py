@@ -14,5 +14,5 @@ urlpatterns = [
     #  return url:
     path('rent/return/<int:pk>/', views.ReturnBackBookUpdateAPIView.as_view(), name='return-book'),
     #  Book filter url:
-    path('filter/', views.BookListListAPIView.as_view(), name='filter-book'),
+    path('filter/', views.BookListAPIView.as_view(), name='filter-book'),
 ] + router.urls

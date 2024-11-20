@@ -13,4 +13,4 @@ class CanNotEdit:
     def __call__(self, *args, **kwargs):
         """This validation function checks on the availability to turn-off a change to edit a field."""
         if args:
-            raise serializers.ValidationError('Field is protected to create/update.')
+            raise serializers.ValidationError('Field is protected to any create or update.')

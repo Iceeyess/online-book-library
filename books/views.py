@@ -1,6 +1,6 @@
 from django.utils.timezone import now
 from rest_framework import viewsets, generics
-from rest_framework.filters import OrderingFilter
+from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 import datetime
@@ -44,9 +44,9 @@ class BookListAPIView(generics.ListAPIView):
     """Class for searching/filtering books"""
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    filter_backends = (filters.DjangoFilterBackend, OrderingFilter)
-    filterset_fields = ['title', 'publication_book_year', 'author', 'genre__name', 'author__full_name']
-    search_fields = ['title', 'publication_book_year', 'author', 'genre__name', 'author__full_name']
+    filter_backends = (filters.DjangoFilterBackend, SearchFilter, OrderingFilter)
+    filterset_fields = ['title', 'publication_book_year', 'genre__name', 'author__full_name']
+    search_fields = ['title', 'publication_book_year', 'genre__name', 'author__full_name']
     ordering_fields = ('title', )
     permission_classes = [IsAuthenticatedOrReadOnly, ]
 

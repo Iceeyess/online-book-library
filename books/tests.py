@@ -7,7 +7,7 @@ from books.models import Genre, Author, Book
 from users.models import User
 
 
-class UserTestCase(APITestCase):
+class AuthorGenreBookRentTestCase(APITestCase):
     """CRUD User model testing"""
 
     def setUp(self) -> None:
@@ -35,6 +35,20 @@ class UserTestCase(APITestCase):
         self.simple_user_headers = {
             'Authorization': f'Token {self.simple_user_token}'
         }
+        self.genre = Genre.objects.create(name='Роман')
+        self.author_dict_data = dict(full_name='Михаил Афанасьевич Булгаков', birth_date='19400310',
+                                biography="Русский писатель советского периода, врач, драматург, театральный "
+                                          "режиссёр и актёр. Родился 3 (15)")
+        self.author = Author.objects.create(**self.author_dict_data)
+        self.book_data = dict(title='Мастер и Маргарита', publication_date='19670714',
+                         description='В книге рассказывается о том, как Мастер и Маргарита, две известные истории, '
+                                     'встречаются в самом сердце Канады. Мастер отправляется на поиски Маргариты, '
+                                     'которая была нашей героиней в прошлом.',
+                         genre=[self.genre.id],
+                         author=[self.author.id],
+                         retail_amount = 100,
+                         term=3,
+                         publication_book_year=1967)
 
     def test_crud_genre(self):
         """Testing for CRUD of Genre model"""
@@ -163,29 +177,16 @@ class UserTestCase(APITestCase):
     def test_crud_books(self):
         """Testing for CRUD of Book model"""
         path = reverse('lib:books-list')
-        genre = Genre.objects.create(name='Роман')
-        author_dict_data = dict(full_name='Михаил Афанасьевич Булгаков', birth_date='19400310',
-                                biography="Русский писатель советского периода, врач, драматург, театральный "
-                                          "режиссёр и актёр. Родился 3 (15)")
-        author = Author.objects.create(**author_dict_data)
-        book_data = dict(title='Мастер и Маргарита', publication_date='19670714',
-                         description='В книге рассказывается о том, как Мастер и Маргарита, две известные истории, '
-                                     'встречаются в самом сердце Канады. Мастер отправляется на поиски Маргариты, '
-                                     'которая была нашей героиней в прошлом.',
-                         genre=[genre.id],
-                         author=[author.id],
-                         retail_amount = 100,
-                         term=3,
-                         publication_book_year=1967)
+
         try:
-            print(f'создаюсь через {self.simpleuser} через block try для {book_data}')
-            response = self.client.post(path=path, data=book_data, format='json', headers=self.simple_user_headers)
+            print(f'создаюсь через {self.simpleuser} через block try для {self.book_data}')
+            response = self.client.post(path=path, data=self.book_data, format='json', headers=self.simple_user_headers)
             self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         except:
             raise ValueError('Unexpected status code.')
         else:
-            response = self.client.post(path=path, data=book_data, format='json', headers=self.super_user_headers)
-            print(f'создаюсь через {self.superuser} через block else для {book_data}')
+            response = self.client.post(path=path, data=self.book_data, format='json', headers=self.super_user_headers)
+            print(f'создаюсь через {self.superuser} через block else для {self.book_data}')
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         ####################################################################################
         # Test update book
@@ -205,6 +206,7 @@ class UserTestCase(APITestCase):
             print(f'обновляюсь через block else для {data_update}')
             self.assertEqual(response_update.status_code, status.HTTP_200_OK)
             self.assertEqual(json.loads(response_update.content)['title'], data_update.get('title'))
+        ################################################################################################
         # Test get book
         path_get = reverse('lib:books-list')
         try:
@@ -213,6 +215,7 @@ class UserTestCase(APITestCase):
             self.assertEqual(response_get.status_code, status.HTTP_200_OK)
         except:
             raise ValueError('Unexpected status code.')
+        ################################################################################################
         # Test delete book
         book_delete = Book.objects.all().last()
         path_delete = reverse('lib:books-detail', kwargs={'pk': book_delete.id})
@@ -227,3 +230,27 @@ class UserTestCase(APITestCase):
             print(f'Удаляю {book_delete} через block else для {book_delete}')
             self.assertEqual(response_delete.status_code, status.HTTP_204_NO_CONTENT)
 
+
+    def test_crud_rent(self):
+        """Testing for CRUD of Rent model"""
+        book = self.client.post(path='lib:books-list', data=self.book_data, headers=self.super_user_headers,
+                                format='json')
+        print(book.content)
+        print(Book.objects.all())
+        path = reverse('lib:rent-list')
+
+        # try:
+        #     print(f'Создаю через block try для {self.rent_data}')
+        #     response = self.client.post(path=path, data=self.rent_data, format='json', headers=self.simple_user_headers)
+        #     self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    # def test_rent_refund(self):
+    #     path = reverse('lib:return-book', kwargs={'pk':rent})
+    #     try:
+    #         response = self.client.patch(path=path, format='json', headers=self.simple_user_headers)
+    #         print('Ставлю книгу/книги на баланс')
+    #         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+    #     except:
+    #         raise ValueError('Unexpected status code.')
+    #     else:
+    #         response = self.client.patch(path=path, format='json', headers=self.super_user_headers)

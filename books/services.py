@@ -1,6 +1,6 @@
 #  CONSTANTS:
 ########################################################################
-TAX_20_VALUE = 0.2  # 20% of revenue
+TAX_20_VALUE = 20 / 120  # 20% of revenue
 ########################################################################
 
 
@@ -9,7 +9,8 @@ def return_book_back(view_object):
     'is_available' marks as True"""
     if not view_object.are_books_returned:
         view_object.are_books_returned = True
-        for book in view_object.books:
-            book.is_available = True
         view_object.save()
+        for book in view_object.books.all():
+            book.is_available = True
+            book.save()
     return view_object

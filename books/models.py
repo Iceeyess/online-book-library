@@ -76,15 +76,15 @@ class Rent(models.Model):
     are_books_returned = models.BooleanField(default=False, help_text='Shows if book was returned to library')
     term = models.PositiveIntegerField(help_text='Field depends on how long book was took rent in days')
     retail_amount = models.FloatField(help_text='Total amount, excluded tax')
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, help_text='debtor user')
+    username = models.ForeignKey(User, on_delete=models.DO_NOTHING, help_text='debtor user')
     deadline = models.DateTimeField(help_text='The deadline date of rent book, red flag!')
     tax_amount = models.FloatField(help_text='Total tax amount for revenue')
 
     def __repr__(self):
-        return f'Rent user - {self.user}, Term - {self.term} days'
+        return f'Rent user - {self.username}, Term - {self.term} days'
 
     def __str__(self):
-        return f'Rent user - {self.user}, Term - {self.term} days'
+        return f'Rent user - {self.username}, Term - {self.term} days'
 
     class Meta:
         verbose_name = 'Rent'

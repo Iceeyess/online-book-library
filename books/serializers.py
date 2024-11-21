@@ -1,10 +1,9 @@
 from django.utils.timezone import now
 from rest_framework import serializers
-
 from books.models import Author, Genre, Book, Rent
 from datetime import timedelta
 from .services import TAX_20_VALUE
-from .validators import IsAmountNegative
+from .validators import IsAmountNegative, CanNotEdit
 
 
 class AuthorSerializer(serializers.ModelSerializer):
@@ -39,16 +38,17 @@ class BookSerializer(serializers.ModelSerializer):
         model = Book
         fields = '__all__'
 
-
 class RentSerializer(serializers.ModelSerializer):
     """Class-model for rent serializers"""
     retail_amount = serializers.FloatField(required=True, validators=[IsAmountNegative()])
+    term = serializers.IntegerField(required=True, validators=[IsAmountNegative()])
     books = serializers.PrimaryKeyRelatedField(many=True, queryset=Book.objects.all())
     books_ = serializers.StringRelatedField(source='books', many=True, read_only=True)
-    user = serializers.HiddenField(default=serializers.CurrentUserDefault())  # hide user field API
-    are_books_returned = serializers.HiddenField(default=False)
-    deadline = serializers.DateTimeField(required=False)
-    tax_amount = serializers.FloatField(required=False)
+    username = serializers.HiddenField(default=serializers.CurrentUserDefault(), )  # hide user field API
+    deadline = serializers.DateTimeField(required=False, validators=[CanNotEdit()])
+    tax_amount = serializers.FloatField(required=False, validators=[CanNotEdit()])
+    published = serializers.DateTimeField(required=False, validators=[CanNotEdit()])
+    record_updated = serializers.DateTimeField(read_only=True, validators=[CanNotEdit()])
 
     def to_representation(self, instance):
         """In order to hide 'books' field from response of server"""
@@ -57,15 +57,42 @@ class RentSerializer(serializers.ModelSerializer):
         return super().to_representation(instance)
 
     def create(self, validated_data):
-        validated_data['user'] = self.context['request'].user
+        """Overrides create method to save related fields for automatically calculations.
+        Below realized a validation error as well for available fields"""
+        validated_data['username'] = self.context['request'].user
         validated_data['deadline'] = now() + timedelta(days=validated_data['term'])
         validated_data['tax_amount'] = round(validated_data['retail_amount'] * TAX_20_VALUE, 2)
+        #  Checks if book is available it books as sales, unless Validation error appears.
         for book in validated_data.get('books'):
-            book.is_available = False
-            book.save()
+            if book.is_available:
+                book.is_available = False
+                book.save()
+            else:
+                raise serializers.ValidationError(f'This {book} is already rented, please choice another one.')
+
         return super().create(validated_data)
 
+    def update(self, instance, validated_data):
+        """Method updates values in validated data, as well as for related_fields which depend on the value of
+        another fields and automatically formulas"""
+        related_fields = {'term': 'deadline', 'retail_amount': 'tax_amount'}
+        formula_for_related_fields = {'deadline': instance.published + timedelta(days=validated_data.get('term')),
+                                      'tax_amount': round(validated_data.get('retail_amount') * TAX_20_VALUE, 2)}
+        for data_ in validated_data:
+            if data_ in related_fields:
+                setattr(instance, related_fields.get(data_), formula_for_related_fields.get(related_fields[data_]))
+            instance.data_ = validated_data.get(data_)
+        instance.save()
+        return super().update(instance, validated_data)
 
     class Meta:
         model = Rent
         fields = '__all__'
+
+class RentReturnBackSerializer(serializers.ModelSerializer):
+    """Serializer for return back books"""
+    books = serializers.StringRelatedField(read_only=True, many=True)
+
+    class Meta:
+        model = Rent
+        fields = ['id', 'books', 'are_books_returned']

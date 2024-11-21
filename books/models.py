@@ -81,10 +81,10 @@ class Rent(models.Model):
     tax_amount = models.FloatField(help_text='Total tax amount for revenue')
 
     def __repr__(self):
-        return f'Rent user - {self.user}, Term - {self.term} days'
+        return f'Rent user - {self.username}, Term - {self.term} days'
 
     def __str__(self):
-        return f'Rent user - {self.user}, Term - {self.term} days'
+        return f'Rent user - {self.username}, Term - {self.term} days'
 
     class Meta:
         verbose_name = 'Rent'

@@ -3,7 +3,7 @@ import json
 from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 from django.urls import reverse
-from books.models import Genre, Author, Book
+from books.models import Genre, Author, Book, Rent
 from users.models import User
 
 
@@ -110,7 +110,7 @@ class AuthorGenreBookRentTestCase(APITestCase):
             raise ValueError('Unexpected status code.')
         else:
             response_delete = self.client.delete(path=path_delete, format='json', headers=self.super_user_headers)
-            print(f'Удаляю {genre_delete} через block else для {genre_delete}')
+            print(f'Удаляю {genre_delete} через block else')
             self.assertEqual(response_delete.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_crud_author(self):
@@ -171,7 +171,7 @@ class AuthorGenreBookRentTestCase(APITestCase):
             raise ValueError('Unexpected status code.')
         else:
             response_delete = self.client.delete(path=path_delete, format='json', headers=self.super_user_headers)
-            print(f'Удаляю {author_delete} через block else для {author_delete}')
+            print(f'Удаляю {author_delete} через block else')
             self.assertEqual(response_delete.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_crud_books(self):
@@ -227,30 +227,81 @@ class AuthorGenreBookRentTestCase(APITestCase):
             raise ValueError('Unexpected status code.')
         else:
             response_delete = self.client.delete(path=path_delete, format='json', headers=self.super_user_headers)
-            print(f'Удаляю {book_delete} через block else для {book_delete}')
+            print(f'Удаляю {book_delete} через block else')
             self.assertEqual(response_delete.status_code, status.HTTP_204_NO_CONTENT)
 
 
     def test_crud_rent(self):
         """Testing for CRUD of Rent model"""
-        book = self.client.post(path='lib:books-list', data=self.book_data, headers=self.super_user_headers,
+        book = self.client.post(path=reverse('lib:books-list'), data=self.book_data, headers=self.super_user_headers,
                                 format='json')
-        print(book.content)
-        print(Book.objects.all())
-        path = reverse('lib:rent-list')
+        rent_path = reverse('lib:rent-list')
+        rent_data = dict(books=[json.loads(book.content).get('id')], retail_amount=200, term=1)
 
-        # try:
-        #     print(f'Создаю через block try для {self.rent_data}')
-        #     response = self.client.post(path=path, data=self.rent_data, format='json', headers=self.simple_user_headers)
-        #     self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    # def test_rent_refund(self):
-    #     path = reverse('lib:return-book', kwargs={'pk':rent})
-    #     try:
-    #         response = self.client.patch(path=path, format='json', headers=self.simple_user_headers)
-    #         print('Ставлю книгу/книги на баланс')
-    #         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-    #     except:
-    #         raise ValueError('Unexpected status code.')
-    #     else:
-    #         response = self.client.patch(path=path, format='json', headers=self.super_user_headers)
+        try:
+            print(f'Создаю через block try для {rent_data}')
+            response = self.client.post(path=rent_path, data=rent_data, headers=self.simple_user_headers, format='json')
+            self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        except:
+            raise ValueError('Unexpected status code.')
+        else:
+            print(f'Создаю через block else для {rent_data}')
+            response = self.client.post(path=rent_path, data=rent_data, headers=self.super_user_headers, format='json')
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        ##############################################################################################
+        #  Test update Rent
+        rent = Rent.objects.all().first()
+        rent_path_update = reverse('lib:rent-detail', kwargs={'pk': rent.id})
+        rent_data_update = dict(retail_amount=300, term=2)
+        try:
+            print(f'Обновляю через block try для {rent_data_update}')
+            response_update = self.client.patch(path=rent_path_update, data=rent_data_update,
+                                                headers=self.simple_user_headers, format='json')
+            self.assertEqual(response_update.status_code, status.HTTP_403_FORBIDDEN)
+        except:
+            raise ValueError('Unexpected status code.')
+        else:
+            print(f'Обновляю через block else для {rent_data_update}')
+            response_update = self.client.patch(path=rent_path_update, data=rent_data_update,
+                                                headers=self.super_user_headers, format='json')
+            self.assertEqual(response_update.status_code, status.HTTP_200_OK)
+        ################################################################################################
+        #  Test get Rent
+        path_get = reverse('lib:rent-list')
+        try:
+            print(f'Считываю через block try для списка объекта {Rent}')
+            response_get = self.client.get(path=path_get, format='json', headers=self.super_user_headers)
+            self.assertEqual(response_get.status_code, status.HTTP_200_OK)
+        except:
+            raise ValueError('Unexpected status code.')
+        ################################################################################################
+        #  Test return Rent
+        rent_return_path = reverse('lib:return-book', kwargs={'pk': rent.id})
+        try:
+            print(f'Возвращаю книгу назад на полку через block try для списка объекта {Rent}')
+            response = self.client.patch(path=rent_return_path, format='json', headers=self.simple_user_headers)
+        except:
+            raise ValueError('Unexpected status code.')
+        else:
+            print(f'Не получилось сделать изначально, поскольку пользователь был не создавший запись или суперюзер.'
+                  f'Возвращаю книгу назад на полку через block else для списка объекта {Rent}')
+            response = self.client.patch(path=rent_return_path, format='json', headers=self.super_user_headers)
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            response_dictionary = json.loads(response.content)
+            self.assertTrue(response_dictionary.get('are_books_returned'))
+            for book in Book.objects.all():
+                self.assertTrue(book.is_available)
+        ################################################################################################
+        #  Test delete Rent
+        rent_delete = Rent.objects.all().last()
+        path_delete = reverse('lib:rent-detail', kwargs={'pk': rent_delete.id})
+        try:
+            print(f'Удаляю через block try для объекта {rent_delete}')
+            response_delete = self.client.delete(path=path_delete, format='json', headers=self.simple_user_headers)
+            self.assertEqual(response_delete.status_code, status.HTTP_403_FORBIDDEN)
+        except:
+            raise ValueError('Unexpected status code.')
+        else:
+            response_delete = self.client.delete(path=path_delete, format='json', headers=self.super_user_headers)
+            print(f'Удаляю {rent_delete} через block else')
+            self.assertEqual(response_delete.status_code, status.HTTP_204_NO_CONTENT)

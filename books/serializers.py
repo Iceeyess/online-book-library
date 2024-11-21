@@ -44,7 +44,7 @@ class RentSerializer(serializers.ModelSerializer):
     term = serializers.IntegerField(required=True, validators=[IsAmountNegative()])
     books = serializers.PrimaryKeyRelatedField(many=True, queryset=Book.objects.all())
     books_ = serializers.StringRelatedField(source='books', many=True, read_only=True)
-    user = serializers.HiddenField(default=serializers.CurrentUserDefault(), )  # hide user field API
+    username = serializers.HiddenField(default=serializers.CurrentUserDefault(), )  # hide user field API
     deadline = serializers.DateTimeField(required=False, validators=[CanNotEdit()])
     tax_amount = serializers.FloatField(required=False, validators=[CanNotEdit()])
     published = serializers.DateTimeField(required=False, validators=[CanNotEdit()])
@@ -59,7 +59,7 @@ class RentSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         """Overrides create method to save related fields for automatically calculations.
         Below realized a validation error as well for available fields"""
-        validated_data['user'] = self.context['request'].user
+        validated_data['username'] = self.context['request'].user
         validated_data['deadline'] = now() + timedelta(days=validated_data['term'])
         validated_data['tax_amount'] = round(validated_data['retail_amount'] * TAX_20_VALUE, 2)
         #  Checks if book is available it books as sales, unless Validation error appears.

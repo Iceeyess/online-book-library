@@ -13,6 +13,9 @@ class AuthorGenreBookRentTestCase(APITestCase):
 
     def get_http_response_for_my_tests(self, method, path, headers1, headers2, expected_status_1,
                                        expected_status_2, data={}, format='json'):
+        """This method gets parameters for ClientAPI requests and makes verification for permissions allowed
+        for simple or superuser, in the block try there are headers provided for specific user and waiting for
+        answer provided in the 'answer'"""
         try:
             print(f'Обрабатываю через block try для {data if data else dict(data="no data found")}')
             answer = method(path=path, data=data, format='json', headers=headers1)

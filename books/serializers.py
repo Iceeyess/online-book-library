@@ -12,11 +12,13 @@ class AuthorSerializer(serializers.ModelSerializer):
         model = Author
         fields = '__all__'
 
+
 class GenreSerializer(serializers.ModelSerializer):
     """Class-model for genre serializers"""
     class Meta:
         model = Genre
         fields = '__all__'
+
 
 class BookSerializer(serializers.ModelSerializer):
     """Class-model for book serializers"""
@@ -37,6 +39,7 @@ class BookSerializer(serializers.ModelSerializer):
     class Meta:
         model = Book
         fields = '__all__'
+
 
 class RentSerializer(serializers.ModelSerializer):
     """Class-model for rent serializers"""
@@ -88,6 +91,7 @@ class RentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rent
         fields = '__all__'
+
 
 class RentReturnBackSerializer(serializers.ModelSerializer):
     """Serializer for return back books"""

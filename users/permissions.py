@@ -11,6 +11,7 @@ class IsSuperuser(permissions.BasePermission):
         """superuser rights verification"""
         return request.user.is_superuser
 
+
 class IsOwner(permissions.BasePermission):
     """Class for overriding permissions to verified if user is owner of the object"""
     def has_object_permission(self, request, view, obj):

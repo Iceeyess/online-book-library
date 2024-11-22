@@ -1,10 +1,11 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-
 # Create your models here.
 
 
 NULLABLE = dict(null=True, blank=True)
+
+
 class User(AbstractUser):
     """Overridden class for users, added below attributes"""
     email = models.EmailField(unique=True, help_text='Email address', **NULLABLE)
@@ -14,7 +15,6 @@ class User(AbstractUser):
     street = models.CharField(max_length=50, help_text='Street name', **NULLABLE)
     house_number = models.CharField(max_length=10, help_text='House number', **NULLABLE)
     apartment_number = models.CharField(max_length=10, help_text='Apartment number', **NULLABLE)
-
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['password']
@@ -26,5 +26,3 @@ class User(AbstractUser):
         verbose_name = 'User'
         verbose_name_plural = 'Users'
         ordering = ('pk', )
-
-

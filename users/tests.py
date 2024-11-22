@@ -10,7 +10,7 @@ class UserTestCase(APITestCase):
     def setUp(self) -> None:
         # user creation
         self.user_date = dict(username='iceeyes', password='1234', email='test@gmail.com', is_staff=True,
-                                is_superuser=True)
+                              is_superuser=True)
         self.client = APIClient()
         self.user = User.objects.create_user(**self.user_date)
         # user authorization
@@ -49,4 +49,3 @@ class UserTestCase(APITestCase):
         response = self.client.delete(path=path, format='json', headers=self.headers)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(User.objects.all().count(), 0)
-

@@ -15,7 +15,17 @@ class AuthorGenreBookRentTestCase(APITestCase):
                                        expected_status_2, data={}, format='json'):
         """This method gets parameters for ClientAPI requests and makes verification for permissions allowed
         for simple or superuser, in the block try there are headers provided for specific user and waiting for
-        answer provided in the 'answer'"""
+        answer provided in the 'answer'.
+        Parameters description:
+        method - The APIClient HTTP method
+        path - path for APIClient HTTP method
+        headers1 - header1 for APIClient HTTP method for 'try' block
+        headers2 - header2 for APIClient HTTP method for 'else' block
+        expected_status_1 - expected_status_1 for APIClient HTTP method for 'try' block
+        expected_status_1 - expected_status_1 for APIClient HTTP method for 'else' block
+        data - data for APIClient HTTP method
+        format - format for APIClient HTTP method"""
+
         try:
             print(f'Обрабатываю через block try для {data if data else dict(data="no data found")}')
             answer = method(path=path, data=data, format='json', headers=headers1)
@@ -32,7 +42,7 @@ class AuthorGenreBookRentTestCase(APITestCase):
         # Superuser and simple user creation
         self.superuser_data = dict(username='iceeyes', password='1234', email='admin@test.com', is_staff=True,
                                    is_superuser=True)
-        self.simpleuser_data = dict(username='valisy', password='1234', email='vasily@test.com', is_staff=False,
+        self.simpleuser_data = dict(username='vasily', password='1234', email='vasily@test.com', is_staff=False,
                                     is_superuser=False)
         self.client = APIClient()
         self.superuser = User.objects.create_user(**self.superuser_data)

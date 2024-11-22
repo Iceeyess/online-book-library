@@ -20,6 +20,7 @@ class UserSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
+
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     """serializer for MyTokenObtainPairView"""
     @classmethod
@@ -28,7 +29,3 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['username'] = user.username
         token['password'] = user.password
         return token
-
-
-
-

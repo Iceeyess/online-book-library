@@ -1,6 +1,4 @@
 import json
-
-from rest_framework.exceptions import APIException
 from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 from django.urls import reverse
@@ -10,7 +8,6 @@ from users.models import User
 
 class AuthorGenreBookRentTestCase(APITestCase):
     """CRUD User model testing"""
-
     def get_http_response_for_my_tests(self, method, path, headers1, headers2, expected_status_1,
                                        expected_status_2, data={}, format='json'):
         """This method gets parameters for ClientAPI requests and makes verification for permissions allowed
@@ -25,7 +22,6 @@ class AuthorGenreBookRentTestCase(APITestCase):
         expected_status_1 - expected_status_1 for APIClient HTTP method for 'else' block
         data - data for APIClient HTTP method
         format - format for APIClient HTTP method"""
-
         try:
             print(f'Обрабатываю через block try для {data if data else dict(data="no data found")}')
             answer = method(path=path, data=data, format='json', headers=headers1)
@@ -160,8 +156,8 @@ class AuthorGenreBookRentTestCase(APITestCase):
         # Test get book
         path_get = reverse('lib:books-list')
         response_get = self.get_http_response_for_my_tests(self.client.get, path_get, self.simple_user_headers,
-                                                               self.simple_user_headers, status.HTTP_200_OK,
-                                                               status.HTTP_200_OK)
+                                                           self.simple_user_headers, status.HTTP_200_OK,
+                                                           status.HTTP_200_OK)
         self.assertEqual(response_get.status_code, status.HTTP_200_OK)
         ################################################################################################
         # Test delete book

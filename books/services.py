@@ -3,7 +3,7 @@ from django.core.mail import send_mail
 from books.models import Rent
 from config.settings import EMAIL_HOST_USER
 
-#CONSTANTS:
+# CONSTANTS:
 ########################################################################
 TAX_20_VALUE = 20 / 120  # 20% of revenue
 ########################################################################
@@ -19,6 +19,7 @@ def return_book_back(view_object) -> Rent:
             book.is_available = True
             book.save()
     return view_object
+
 
 def sending_email(obj) -> None:
     """This function sends an email to renters"""

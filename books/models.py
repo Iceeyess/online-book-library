@@ -1,10 +1,11 @@
-from datetime import datetime, timedelta
 from django.db import models
-
 from users.models import User
+
 
 NULLABLE = dict(blank=True, null=True)
 # Create your models here.
+
+
 class Author(models.Model):
     """The class-model of Author"""
     full_name = models.CharField(max_length=255, help_text='Author full name', )
@@ -19,11 +20,11 @@ class Author(models.Model):
     def __str__(self):
         return self.full_name
 
-
     class Meta:
         verbose_name = 'Author'
         verbose_name_plural = 'Authors'
         ordering = ('pk', )
+
 
 class Genre(models.Model):
     """The class-model of the Genre"""
@@ -39,6 +40,7 @@ class Genre(models.Model):
         verbose_name = 'Genre'
         verbose_name_plural = 'Genres'
         ordering = ('pk', )
+
 
 class Book(models.Model):
     """The class-model of the Book"""

@@ -39,6 +39,7 @@ class BookViewSet(viewsets.ModelViewSet):
             permission_classes = [IsSuperuser | IsAdminUser]
         return [permission() for permission in permission_classes]
 
+
 class BookListAPIView(generics.ListAPIView):
     """Class for searching/filtering books"""
     queryset = Book.objects.all()
@@ -75,6 +76,7 @@ class RentViewSet(viewsets.ModelViewSet):
                 'Аренда закрыта' if instance.are_books_returned else 'В аренде'),
         }
         return Response(response)
+
 
 class ReturnBackBookUpdateAPIView(generics.UpdateAPIView):
     """API view for returning back goods on the balance"""

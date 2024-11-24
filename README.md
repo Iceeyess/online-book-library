@@ -71,7 +71,19 @@ is_for_docker - отвечает за путь запуска через .env и
 Соответственно .env - запуск на локальном IDE, webapp.env - запуск через Docker.
 ------------------------------------------------------------------------------------------------------------------------
 ЗАПУСК ЧЕРЕЗ IDE:
+Внимательно изучите .env.example, затем создайте локально .env файл.
+Создайте базу данных локально и опишите все параметры в .env файле, которые указаны в .env.example для примера.
+
+Запуск без наполнения БД:
+python -m pip install -r requirements.txt
 python manage.py migrate && python manage.py runserver
+
+Для проверки, можно наполнить базу данных уже подготовленными данными, в таком случае выполните в самом начале:
+python -m pip install -r requirements.txt
+python manage.py migrate
+python manage.py loaddata users.json
+python manage.py loaddata books_data.json
+python manage.py runserver
 ------------------------------------------------------------------------------------------------------------------------
 ЗАПУСК ЧЕРЕЗ DOCKER:
 

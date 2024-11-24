@@ -19,7 +19,7 @@ from dotenv import load_dotenv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 #  variable for docker or local machine.
-is_for_docker = True
+is_for_docker = False
 if is_for_docker:
     dot_env = os.path.join(BASE_DIR, 'webapp.env')
     load_dotenv(dotenv_path=dot_env)

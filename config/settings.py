@@ -12,18 +12,20 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from datetime import timedelta
 from pathlib import Path
 import os
-
 from django.conf.global_settings import AUTH_USER_MODEL
 from dotenv import load_dotenv
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-dot_env = os.path.join(BASE_DIR, '.env')
-load_dotenv(dotenv_path=dot_env)
-
-# Variable for loading constants from .env file
-ARE_WE_USE_ENV_VARIABLES = True
+#  variable for docker or local machine.
+is_for_docker = False
+if is_for_docker:
+    dot_env = os.path.join(BASE_DIR, 'webapp.env')
+    load_dotenv(dotenv_path=dot_env)
+else:
+    dot_env = os.path.join(BASE_DIR, '.env')
+    load_dotenv(dotenv_path=dot_env)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -53,6 +55,7 @@ INSTALLED_APPS = [
     'django_filters',
     'django_celery_beat',
     'drf_yasg',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
@@ -89,18 +92,16 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-if ARE_WE_USE_ENV_VARIABLES:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': os.getenv('POSTGRE_NAME'),  # Название БД
-            'USER': os.getenv('POSTGRE_USER'),  # Пользователь для подключения
-            'PASSWORD': os.getenv('POSTGRE_PASSWORD'),  # Пароль для этого пользователя
-            'HOST': os.getenv('POSTGRE_HOST'),  # Адрес, на котором развернут сервер БД
-            'PORT': os.getenv('POSTGRE_PORT'),  # Порт, на котором работает сервер БД
-        }
+DATABASES = {
+    'default': {
+        'ENGINE': os.getenv('DATABASE_ENGINE'),
+        'HOST': os.getenv('DATABASE_HOST'),
+        'NAME': os.getenv('DATABASE_NAME'),
+        'USER': os.getenv('DATABASE_USER'),
+        'PASSWORD': os.getenv('DATABASE_PASSWORD'),
+        'PORT': os.getenv('DATABASE_PORT'),
     }
-
+}
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 

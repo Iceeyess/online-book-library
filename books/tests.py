@@ -11,8 +11,8 @@ class AuthorGenreBookRentTestCase(APITestCase):
     def get_http_response_for_my_tests(self, method, path, headers1, headers2, expected_status_1,
                                        expected_status_2, data={}, format='json'):
         """This method gets parameters for ClientAPI requests and makes verification for permissions allowed
-        for simple or superuser, in the block try there are headers provided for specific user and waiting for
-        answer provided in the 'answer'.
+        for simple or superuser, in the blocks 'try' and 'else' there are headers provided for specific users
+        and waiting for answer provided in the 'answer'.
         Parameters description:
         method - The APIClient HTTP method
         path - path for APIClient HTTP method

@@ -1,0 +1,73 @@
+version: '3.9'
+services:
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: diplom
+      POSTGRES_PASSWORD: qwerty12345
+      PGDATA: /var/lib/postgresql/data/pgdata
+    networks:
+      - backend
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+    volumes:
+      - ./db_data:/var/lib/postgresql/data
+  diplom:
+    image: diplom:latest
+    build: .
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/library_app
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      env_file: "webapp.env"
+    networks:
+      - backend
+      - frontend
+  redis:
+    image: redis:latest
+    networks:
+      - backend
+  celery-worker:
+    build: .
+    command: celery -A config worker --loglevel=info
+    volumes:
+      - .:/library_app
+    depends_on:
+      - redis
+      - diplom
+    networks:
+      - backend
+  celery-beat:
+    build: .
+    command: celery -A config beat --loglevel=info
+    volumes:
+      - .:/library_app
+    depends_on:
+      - redis
+      - diplom
+    networks:
+      - backend
+networks:
+  backend:
+    external: false
+  frontend:
+    driver: bridge
+
+volumes:
+  diplom:
+    driver: local
+  redis:
+    driver: local
+  celery-worker:
+    driver: local
+  celery-beat:
+    driver: local
+  db_data:
+    driver: local
+

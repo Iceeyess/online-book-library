@@ -66,41 +66,43 @@ Rest Framework (DRF).
 ------------------------------------------------------------------------------------------------------------------------
 ЗАПУСК ПРОЕКТА:
 Проект может запускаться локально в любой IDE или через Docker.
-Важная переменная в config.settings.py: is_for_docker
-is_for_docker - отвечает за путь запуска через .env или webapp.env файл.
+Важная переменная в config.settings.py: 
+- is_for_docker
+- is_for_docker - отвечает за путь запуска через .env или webapp.env файл.
 Соответственно .env - запуск на локальном IDE, webapp.env - запуск через Docker.
 ------------------------------------------------------------------------------------------------------------------------
 ЗАПУСК ЧЕРЕЗ IDE:
+
 Внимательно изучите .env.example, затем создайте локально .env файл.
 Создайте базу данных локально и опишите все параметры в .env файле, которые указаны в .env.example для примера.
 
 Запуск без наполнения БД:
-python -m pip install -r requirements.txt
-python manage.py migrate && python manage.py runserver
+- python -m pip install -r requirements.txt
+- python manage.py migrate && python manage.py runserver
 
 Для проверки, можно наполнить базу данных уже подготовленными данными, в таком случае выполните в самом начале:
-python -m pip install -r requirements.txt
-python manage.py migrate
-python manage.py loaddata users.json
-python manage.py loaddata books_data.json
-python manage.py runserver
+- python -m pip install -r requirements.txt
+- python manage.py migrate
+- python manage.py loaddata users.json
+- python manage.py loaddata books_data.json
+- python manage.py runserver
 ------------------------------------------------------------------------------------------------------------------------
 ЗАПУСК ЧЕРЕЗ DOCKER:
 
 Создание image:
-sudo docker compose build
+- sudo docker compose build
 
 Создание containers:
-sudo docker compose up -d
+- sudo docker compose up -d
 
 Остановка контейнеров:
-ctrl + C или sudo docker compose down
+- ctrl + C или sudo docker compose down
 
 Удалить текущие images:
-os.system('sudo docker compose down')
-os.system('sudo docker rmi $(sudo docker images)')
+- os.system('sudo docker compose down')
+- os.system('sudo docker rmi $(sudo docker images)')
 
 Так же есть упрощенный функционал:
-python manage.py run_docker - создаст образ и запустит его.
-python manage.py delete_docker - остановит контейнеры и удалит контейнеры с образами.
+- python manage.py run_docker - создаст образ и запустит его.
+- python manage.py delete_docker - остановит контейнеры и удалит контейнеры с образами.
 ------------------------------------------------------------------------------------------------------------------------

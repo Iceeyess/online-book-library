@@ -99,8 +99,8 @@ Rest Framework (DRF).
 - ctrl + C или sudo docker compose down
 
 Удалить текущие images:
-- os.system('sudo docker compose down')
-- os.system('sudo docker rmi $(sudo docker images)')
+- sudo docker compose down
+- sudo docker rmi $(sudo docker images)
 
 Так же есть упрощенный функционал:
 - python manage.py run_docker - создаст образ и запустит его.
